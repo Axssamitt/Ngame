@@ -271,3 +271,32 @@ Create `src/services/turnProcessor.ts` and route `POST /api/turn/process` with:
 ```markdown
 Write a migration file setting up automated daily execution of `processar_turno()` using PostgreSQL pg_cron at 00:00 UTC. Ensure the execution runs within a serializable transaction with idempotency checks and rollback safeguards.
 ```
+
+---
+
+## 6. Como Rodar Localmente (com Arquivo SQL)
+
+Você pode executar o jogo localmente de três maneiras simples:
+
+### Opção 1: Servidor Local Node.js (Recomendada)
+O arquivo `server_local.js` sincroniza diretamente com o arquivo `init_db.sql`:
+```bash
+npm run start:local
+# ou
+node server_local.js
+```
+Acesse no seu navegador: `http://localhost:3000`
+
+### Opção 2: Execução Direta no Navegador (Offline)
+Basta abrir o arquivo `desafio-empreendedor.html` com dois cliques ou via `file://`.
+Você pode clicar no botão **"💾 Exportar SQL"** a qualquer momento para gerar o dump SQL atualizado (`desafio_empreendedor_turno_X.sql`).
+
+### Opção 3: Usando um Banco PostgreSQL Local ou Docker
+Se você tiver PostgreSQL rodando localmente:
+```bash
+psql -U postgres -d postgres -f init_db.sql
+```
+Para simular a virada do dia via terminal:
+```sql
+SELECT processar_turno();
+```

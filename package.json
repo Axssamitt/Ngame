@@ -1,6 +1,7 @@
 {
   "name": "grimorio-dos-portais",
   "private": true,
+  "type": "module",
   "workspaces": [
     "backend",
     "frontend"
@@ -8,6 +9,7 @@
   "scripts": {
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
+    "start:local": "node server_local.js",
     "build": "npm --prefix backend run build && npm --prefix frontend run build",
     "test": "npm --prefix backend run test"
   }

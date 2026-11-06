@@ -292,6 +292,9 @@
       <button class="btn btn-success" id="btnProcessarTurno" onclick="processarTurno()">
         ▶ Processar Turno Diário (1 Mês)
       </button>
+      <button class="btn btn-outline" onclick="exportarBackupSQL()" title="Exportar dados do jogo em arquivo SQL">
+        💾 Exportar SQL
+      </button>
     </div>
   </header>
 
@@ -1176,6 +1179,32 @@ function atualizarInterface() {
       </tr>
     `;
   });
+}
+
+// ==========================================================================
+// EXPORTAÇÃO E IMPORTAÇÃO SQL LOCAL
+// ==========================================================================
+function exportarBackupSQL() {
+  let sql = `-- ============================================================================\n`;
+  sql += `-- BACKUP DESAFIO EMPREENDEDOR — Turno: ${estado.turno} — Data: ${new Date().toISOString()}\n`;
+  sql += `-- ============================================================================\n\n`;
+
+  sql += `UPDATE estado_jogo SET turno_atual = ${estado.turno};\n\n`;
+
+  estado.empresas.forEach(e => {
+    sql += `INSERT INTO empresas (id, nome, setor, categoria, caixa, reputacao, qualidade, preco_venda, marketing, capacidade_producao, estoque_produto, estoque_insumos, meta_producao)\n`;
+    sql += `VALUES ('${e.id}', '${e.nome.replace(/'/g, "''")}', '${e.setor}', '${e.categoria}', ${e.caixa.toFixed(2)}, ${e.reputacao}, ${e.qualidade}, ${e.preco.toFixed(2)}, ${e.marketing.toFixed(2)}, ${e.capacidade}, ${e.estoqueProduto}, ${e.estoqueInsumos || 0}, ${e.metaProducao || 0})\n`;
+    sql += `ON CONFLICT (id) DO UPDATE SET caixa = EXCLUDED.caixa, estoque_produto = EXCLUDED.estoque_produto, reputacao = EXCLUDED.reputacao;\n\n`;
+  });
+
+  const blob = new Blob([sql], { type: 'text/sql;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `desafio_empreendedor_turno_${estado.turno}.sql`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 // Inicialização com dados de demonstração
