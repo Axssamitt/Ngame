@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio Empreendedor — Simulador de Negócios B2B & B2C</title>
+  <style>
+    :root {
+      --bg-main: #090d16;
+      --bg-card: #131b2e;
+      --bg-card-hover: #19233c;
+      --border: #23314f;
+      --border-focus: #3b82f6;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --success-hover: #059669;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --accent: #8b5cf6;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-main);
+      color: var(--text);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title-group h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-group p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .turn-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-card);
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .turn-badge {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #60a5fa;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: var(--success-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--border); }
+    .btn-danger { background: var(--danger); color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Sector Bar */
+    .sector-stat {
+      margin-bottom: 12px;
+    }
+    .sector-stat:last-child { margin-bottom: 0; }
+    .sector-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%;
+      padding: 9px 12px;
+      background: #0b1120;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* Company cards */
+    .company-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+    .company-card.has-danger {
+      border-left: 4px solid var(--danger);
+    }
+    .company-card.has-profit {
+      border-left: 4px solid var(--success);
+    }
+    .company-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .tag-industria { background: #581c87; color: #d8b4fe; }
+    .tag-comercio { background: #78350f; color: #fde68a; }
+    .tag-servico { background: #164e63; color: #a5f3fc; }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding: 3px 0;
+      border-bottom: 1px dashed #1e293b;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .val-positive { color: var(--success); font-weight: 600; }
+    .val-negative { color: var(--danger); font-weight: 600; }
+    .val-highlight { color: #60a5fa; font-weight: 600; }
+
+    /* Orders Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    th {
+      padding: 10px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #1a243a;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .tab-btn.active {
+      background: #1e293b;
+      color: #fff;
+    }
+
+    /* Event Banner */
+    .event-banner {
+      background: linear-gradient(90deg, #1e1b4b 0%, #31104b 100%);
+      border: 1px solid #6366f1;
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .report-box {
+      background: #090e1a;
+      border: 1px solid #1e2b48;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- CABEÇALHO -->
+  <header>
+    <div class="title-group">
+      <h1>🏭 Desafio Empreendedor</h1>
+      <p>Simulador Econômico B2B & B2C — Ordens Permanentes & Cadência Diária</p>
+    </div>
+    <div class="turn-controls">
+      <div>
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Turno Atual</span>
+        <span class="turn-badge" id="lblTurno">Turno 0 (Início)</span>
+      </div>
+      <button class="btn btn-success" id="btnProcessarTurno" onclick="processarTurno()">
+        ▶ Processar Turno Diário (1 Mês)
+      </button>
+    </div>
+  </header>
+
+  <!-- BANNER DE EVENTO DO TURNO -->
+  <div id="bannerEvento" class="event-banner" style="display:none;">
+    <div>
+      <strong id="eventoTitulo" style="color:#a5b4fc; font-size:1rem;"></strong>
+      <p id="eventoDesc" style="font-size:0.85rem; color:#e0e7ff; margin-top:2px;"></p>
+    </div>
+    <span id="eventoDuracao" style="background:#4338ca; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;"></span>
+  </div>
+
+  <!-- NAVEGAÇÃO POR ABAS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="trocarAba('dashboard')">🏢 Minhas Empresas</button>
+    <button class="tab-btn" onclick="trocarAba('b2b')">🤝 Mercado B2B (Leilão Duplo)</button>
+    <button class="tab-btn" onclick="trocarAba('mercado')">📊 Painel Macroeconômico</button>
+    <button class="tab-btn" onclick="trocarAba('ranking')">🏆 DRE & Ranking</button>
+  </div>
+
+  <!-- ABA 1: DASHBOARD DE EMPRESAS E CRIAÇÃO -->
+  <div id="aba-dashboard">
+    <div class="grid-2" style="margin-bottom: 24px;">
+      <!-- CARD: CRIAÇÃO DE EMPRESA -->
+      <div class="card">
+        <h2>➕ Abrir Nova Empresa</h2>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Nome Fantasia</label>
+            <input type="text" id="novoNome" placeholder="Ex: Panificadora Central" value="Alimentos Beta">
+          </div>
+          <div class="form-group">
+            <label>Setor Econômico</label>
+            <select id="novoSetor" onchange="atualizarCategoriasSetor()">
+              <option value="industria">Indústria (Quota Máx: 9%)</option>
+              <option value="comercio" selected>Comércio (Quota Máx: 28%)</option>
+              <option value="servico">Serviços (Quota Máx: 55%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Categoria de Atuação</label>
+            <select id="novaCategoria">
+              <option value="alimentos">Alimentos</option>
+              <option value="vestuario">Vestuário</option>
+              <option value="eletronicos">Eletrônicos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Preço de Venda Inicial (R$)</label>
+            <input type="number" id="novoPreco" value="50" min="1" step="0.5">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;" onclick="criarEmpresa()">
+          Fundar Empresa (Capital Inicial: R$ 10.000,00)
+        </button>
+        <div id="msgCriacao" style="margin-top:8px; font-size:0.85rem;"></div>
+      </div>
+
+      <!-- CARD: LIMITES DE OCUPAÇÃO SETORIAL -->
+      <div class="card">
+        <h2>📊 Vagas e Ocupação por Setor</h2>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+          Regra de equilíbrio sistêmico: o ecossistema limita as vagas totais para evitar sobreoferta de um único tipo de atividade.
+        </p>
+
+        <div class="sector-stat">
+          <div class="sector-header">
+            <span>🏭 Indústria (Quota: 9%)</span>
+            <span id="lblIndOcupacao">0 / 9 vagas</span>
+          </div>
+          <div class="progress-bar">
+            <div id="barInd" class="progress-fill" style="width:0%; background:#8b5cf6;"></div>
+          </div>
+        </div>
+
+        <div class="sector-stat">
+          <div class="sector-header">
+            <span>🛒 Comércio (Quota: 28%)</span>
+            <span id="lblComOcupacao">0 / 28 vagas</span>
+          </div>
+          <div class="progress-bar">
+            <div id="barCom" class="progress-fill" style="width:0%; background:#f59e0b;"></div>
+          </div>
+        </div>
+
+        <div class="sector-stat">
+          <div class="sector-header">
+            <span>💼 Serviços (Quota: 55%)</span>
+            <span id="lblSerOcupacao">0 / 55 vagas</span>
+          </div>
+          <div class="progress-bar">
+            <div id="barSer" class="progress-fill" style="width:0%; background:#06b6d4;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTA DE EMPRESAS ATIVAS -->
+    <h2 style="font-size:1.2rem; margin-bottom:14px;">Suas Empresas Registradas</h2>
+    <div id="listaEmpresas" class="grid-3"></div>
+  </div>
+
+  <!-- ABA 2: MERCADO B2B -->
+  <div id="aba-b2b" style="display:none;">
+    <div class="grid-2" style="margin-bottom:20px;">
+      <!-- CRIAR ORDEM / OFERTA -->
+      <div class="card">
+        <h2>📝 Publicar Ordem B2B</h2>
+        <div class="form-group">
+          <label>Empresa Emissora</label>
+          <select id="b2bEmpresaId"></select>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Tipo de Operação</label>
+            <select id="b2bTipo">
+              <option value="compra">Ordem de Compra (Bid)</option>
+              <option value="venda">Oferta de Venda (Ask)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Produto / Categoria</label>
+            <select id="b2bCategoria">
+              <option value="insumos">Insumos Industriais</option>
+              <option value="alimentos">Alimentos (Atacado)</option>
+              <option value="vestuario">Vestuário (Atacado)</option>
+              <option value="eletronicos">Eletrônicos (Atacado)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Quantidade (un.)</label>
+            <input type="number" id="b2bQtd" value="100" min="1">
+          </div>
+          <div class="form-group">
+            <label>Preço Limite (R$ / un.)</label>
+            <input type="number" id="b2bPreco" value="35" min="1" step="0.5">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="criarOrdemB2B()" style="width:100%;">
+          Inserir Ordem no Livro de Ofertas
+        </button>
+      </div>
+
+      <!-- VISÃO DO LIVRO DE ORDENS -->
+      <div class="card">
+        <h2>📖 Livro de Ordens Ativas (B2B Clearing)</h2>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">
+          No momento do processamento do turno, o algoritmo de leilão duplo casa as maiores ofertas de compra com as menores de venda.
+        </p>
+        <div style="max-height: 260px; overflow-y: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Empresa</th>
+                <th>Item</th>
+                <th>Qtd</th>
+                <th>Preço Limite</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaOrdensB2B"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO DE NEGOCIAÇÕES B2B -->
+    <div class="card">
+      <h2>🤝 Últimas Transações B2B Realizadas</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Turno</th>
+            <th>Comprador</th>
+            <th>Vendedor</th>
+            <th>Item</th>
+            <th>Qtd</th>
+            <th>Preço Unitário</th>
+            <th>Total Liquidado</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaTransacoesB2B">
+          <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">Nenhuma transação executada até o momento.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ABA 3: MACROECONOMIA -->
+  <div id="aba-mercado" style="display:none;">
+    <div class="card" style="margin-bottom:20px;">
+      <h2>📈 Parâmetros Econômicos das Categorias (B2C)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Categoria</th>
+            <th>Demanda Base / Mês</th>
+            <th>Preço de Referência</th>
+            <th>Sensibilidade Preço (Elasticidade)</th>
+            <th>Humor do Consumidor Atual</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaCategorias"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ABA 4: RANKING & DRE -->
+  <div id="aba-ranking" style="display:none;">
+    <div class="card">
+      <h2>🏆 Classificação Geral de Empresas (Patrimônio Líquido)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Posição</th>
+            <th>Empresa</th>
+            <th>Setor</th>
+            <th>Caixa Atual</th>
+            <th>Estoque Total</th>
+            <th>Reputação</th>
+            <th>Último Faturamento</th>
+            <th>Último Lucro Líquido</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaRanking"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIGURAÇÃO DE EMPRESA -->
+<div id="modalConfig" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:100;">
+  <div class="card" style="width:440px; max-width:90vw;">
+    <h2 id="modalEmpresaNome">⚙️ Configurações da Empresa</h2>
+    <input type="hidden" id="modalEmpresaId">
+
+    <div class="form-group">
+      <label>Preço de Venda Praticado (R$)</label>
+      <input type="number" id="modalPreco" step="0.5" min="1">
+    </div>
+
+    <div class="form-group">
+      <label>Investimento em Marketing (R$ / turno)</label>
+      <input type="number" id="modalMarketing" step="50" min="0">
+    </div>
+
+    <div class="form-group" id="grupoProducao">
+      <label>Meta de Produção Industrial (unidades)</label>
+      <input type="number" id="modalMetaProducao" min="0">
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+      <button class="btn btn-outline" onclick="fecharModalConfig()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarConfigEmpresa()">Salvar Diretrizes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================================================
+// ESTADO GLOBAL DO JOGO
+// ==========================================================================
+const estado = {
+  turno: 0,
+  eventoAtivo: null,
+  eventoDuracao: 0,
+  limitesSetor: {
+    industria: { maxPct: 0.09, vagasMax: 9, ocupadas: 0 },
+    comercio: { maxPct: 0.28, vagasMax: 28, ocupadas: 0 },
+    servico: { maxPct: 0.55, vagasMax: 55, ocupadas: 0 }
+  },
+  categorias: {
+    alimentos: { nome: 'Alimentos', base: 10000, precoRef: 50, elasticidade: -0.8, pesoQualidade: 0.3, humor: 0 },
+    vestuario: { nome: 'Vestuário', base: 6000, precoRef: 80, elasticidade: -0.7, pesoQualidade: 0.4, humor: 0 },
+    eletronicos: { nome: 'Eletrônicos', base: 3000, precoRef: 200, elasticidade: -0.5, pesoQualidade: 0.5, humor: 0 },
+    insumos: { nome: 'Insumos Industriais', base: 5000, precoRef: 30, elasticidade: -0.6, pesoQualidade: 0.2, humor: 0 }
+  },
+  eventosPossiveis: [
+    { nome: 'Black Friday', desc: 'Demanda de eletrônicos e vestuário aumenta em +50%!', duracao: 1, efeito: (s) => { s.categorias.eletronicos.humor += 50; s.categorias.vestuario.humor += 50; } },
+    { nome: 'Crise Cambial', desc: 'Custo de insumos importados sobe em 30%.', duracao: 2, efeito: () => {} },
+    { nome: 'Boom Econômico', desc: 'Confiança do consumidor em alta (+20% em todas as categorias).', duracao: 2, efeito: (s) => { for(let k in s.categorias) s.categorias[k].humor += 20; } },
+    { nome: 'Incentivo Fiscal', desc: 'Alíquota de imposto reduzida temporariamente de 12% para 6%.', duracao: 1, impostoAliquota: 0.06 }
+  ],
+  empresas: [],
+  ordensB2B: [],
+  transacoesB2B: []
+};
+
+// ==========================================================================
+// NAVEGAÇÃO DE ABAS
+// ==========================================================================
+function trocarAba(aba) {
+  ['dashboard', 'b2b', 'mercado', 'ranking'].forEach(a => {
+    document.getElementById('aba-' + a).style.display = (a === aba) ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+    const abas = ['dashboard', 'b2b', 'mercado', 'ranking'];
+    btn.classList.toggle('active', abas[idx] === aba);
+  });
+}
+
+function atualizarCategoriasSetor() {
+  const setor = document.getElementById('novoSetor').value;
+  const selectCat = document.getElementById('novaCategoria');
+  selectCat.innerHTML = '';
+
+  if (setor === 'industria') {
+    selectCat.innerHTML = `
+      <option value="alimentos">Alimentos (Fábrica)</option>
+      <option value="vestuario">Vestuário (Confecção)</option>
+      <option value="eletronicos">Eletrônicos (Montagem)</option>
+      <option value="insumos">Insumos Básicos</option>
+    `;
+  } else if (setor === 'comercio') {
+    selectCat.innerHTML = `
+      <option value="alimentos">Alimentos (Supermercado)</option>
+      <option value="vestuario">Vestuário (Loja de Roupas)</option>
+      <option value="eletronicos">Eletrônicos (Magazine)</option>
+    `;
+  } else {
+    selectCat.innerHTML = `
+      <option value="marketing">Consultoria & Marketing</option>
+      <option value="logistica">Transporte & Logística</option>
+    `;
+  }
+}
+
+// ==========================================================================
+// CRIAÇÃO DE EMPRESA
+// ==========================================================================
+function criarEmpresa() {
+  const nome = document.getElementById('novoNome').value.trim();
+  const setor = document.getElementById('novoSetor').value;
+  const categoria = document.getElementById('novaCategoria').value;
+  const preco = parseFloat(document.getElementById('novoPreco').value) || 50;
+  const msg = document.getElementById('msgCriacao');
+
+  if (!nome) {
+    msg.textContent = '❌ Por favor, informe o nome da empresa.';
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+
+  const lim = estado.limitesSetor[setor];
+  if (lim.ocupadas >= lim.vagasMax) {
+    msg.textContent = `❌ Limite setorial atingido! O setor de ${setor} já possui ${lim.ocupadas} empresas de ${lim.vagasMax} permitidas.`;
+    msg.style.color = 'var(--danger)';
+    return;
+  }
+
+  const novaEmpresa = {
+    id: 'emp_' + Math.random().toString(36).substr(2, 9),
+    nome,
+    setor,
+    categoria,
+    caixa: 10000,
+    reputacao: 50,
+    qualidade: 50,
+    preco,
+    marketing: 0,
+    capacidade: 200,
+    estoqueProduto: (setor === 'industria' ? 150 : 100),
+    estoqueInsumos: (setor === 'industria' ? 200 : 0),
+    metaProducao: 100,
+    ultimoFaturamento: 0,
+    ultimoLucro: 0,
+    ultimoDRE: null
+  };
+
+  estado.empresas.push(novaEmpresa);
+  lim.ocupadas++;
+
+  msg.textContent = `✅ Empresa "${nome}" criada com sucesso no setor ${setor.toUpperCase()}!`;
+  msg.style.color = 'var(--success)';
+
+  atualizarInterface();
+}
+
+// ==========================================================================
+// CONFIGURAÇÃO MODAL
+// ==========================================================================
+function abrirModalConfig(id) {
+  const emp = estado.empresas.find(e => e.id === id);
+  if (!emp) return;
+
+  document.getElementById('modalEmpresaId').value = emp.id;
+  document.getElementById('modalEmpresaNome').textContent = `⚙️ Configurar: ${emp.nome}`;
+  document.getElementById('modalPreco').value = emp.preco;
+  document.getElementById('modalMarketing').value = emp.marketing;
+
+  const grupoProd = document.getElementById('grupoProducao');
+  if (emp.setor === 'industria') {
+    grupoProd.style.display = 'block';
+    document.getElementById('modalMetaProducao').value = emp.metaProducao || 100;
+  } else {
+    grupoProd.style.display = 'none';
+  }
+
+  document.getElementById('modalConfig').style.display = 'flex';
+}
+
+function fecharModalConfig() {
+  document.getElementById('modalConfig').style.display = 'none';
+}
+
+function salvarConfigEmpresa() {
+  const id = document.getElementById('modalEmpresaId').value;
+  const emp = estado.empresas.find(e => e.id === id);
+  if (!emp) return;
+
+  emp.preco = Math.max(1, parseFloat(document.getElementById('modalPreco').value) || 1);
+  emp.marketing = Math.max(0, parseFloat(document.getElementById('modalMarketing').value) || 0);
+
+  if (emp.setor === 'industria') {
+    emp.metaProducao = Math.max(0, parseInt(document.getElementById('modalMetaProducao').value) || 0);
+  }
+
+  fecharModalConfig();
+  atualizarInterface();
+}
+
+// ==========================================================================
+// MERCADO B2B (ORDENS E MATCHING)
+// ==========================================================================
+function criarOrdemB2B() {
+  const empresaId = document.getElementById('b2bEmpresaId').value;
+  const tipo = document.getElementById('b2bTipo').value;
+  const categoria = document.getElementById('b2bCategoria').value;
+  const qtd = parseInt(document.getElementById('b2bQtd').value) || 0;
+  const preco = parseFloat(document.getElementById('b2bPreco').value) || 0;
+
+  if (!empresaId) {
+    alert('Selecione uma empresa emissora.');
+    return;
+  }
+  if (qtd <= 0 || preco <= 0) {
+    alert('Quantidade e preço devem ser positivos.');
+    return;
+  }
+
+  const emp = estado.empresas.find(e => e.id === empresaId);
+  if (tipo === 'venda' && emp.estoqueProduto < qtd) {
+    alert(`Estoque insuficiente! A empresa possui ${emp.estoqueProduto} unidades e tentou ofertar ${qtd}.`);
+    return;
+  }
+
+  estado.ordensB2B.push({
+    id: 'ord_' + Math.random().toString(36).substr(2, 9),
+    empresaId,
+    empresaNome: emp.nome,
+    tipo,
+    categoria,
+    quantidade: qtd,
+    quantidadeRestante: qtd,
+    precoLimite: preco
+  });
+
+  atualizarInterface();
+}
+
+function cancelarOrdemB2B(id) {
+  estado.ordensB2B = estado.ordensB2B.filter(o => o.id !== id);
+  atualizarInterface();
+}
+
+function processarMatchingB2B() {
+  const categoriasUnicas = [...new Set(estado.ordensB2B.map(o => o.categoria))];
+
+  categoriasUnicas.forEach(cat => {
+    // Ordens de compra: maiores preços primeiro
+    const compras = estado.ordensB2B
+      .filter(o => o.categoria === cat && o.tipo === 'compra' && o.quantidadeRestante > 0)
+      .sort((a, b) => b.precoLimite - a.precoLimite);
+
+    // Ofertas de venda: menores preços primeiro
+    const vendas = estado.ordensB2B
+      .filter(o => o.categoria === cat && o.tipo === 'venda' && o.quantidadeRestante > 0)
+      .sort((a, b) => a.precoLimite - b.precoLimite);
+
+    let i = 0, j = 0;
+    while (i < compras.length && j < vendas.length) {
+      const bid = compras[i];
+      const ask = vendas[j];
+
+      if (bid.precoLimite >= ask.precoLimite) {
+        // Preço de liquidação: média ponderada/leilão
+        const precoExecucao = (bid.precoLimite + ask.precoLimite) / 2;
+        const compEmp = estado.empresas.find(e => e.id === bid.empresaId);
+        const vendEmp = estado.empresas.find(e => e.id === ask.empresaId);
+
+        if (!compEmp || !vendEmp) { break; }
+
+        // Unidades limitadas pelo caixa do comprador e estoque do vendedor
+        const maxPeloCaixa = Math.floor(compEmp.caixa / precoExecucao);
+        const qtdTransacionar = Math.min(
+          bid.quantidadeRestante,
+          ask.quantidadeRestante,
+          vendEmp.estoqueProduto,
+          maxPeloCaixa
+        );
+
+        if (qtdTransacionar <= 0) {
+          if (maxPeloCaixa <= 0) i++; // Comprador sem caixa avança
+          else j++; // Vendedor sem estoque avança
+          continue;
+        }
+
+        const financeiroTotal = qtdTransacionar * precoExecucao;
+
+        // Liquidação
+        compEmp.caixa -= financeiroTotal;
+        vendEmp.caixa += financeiroTotal;
+        vendEmp.estoqueProduto -= qtdTransacionar;
+
+        // Se o comprador for indústria e comprou insumos:
+        if (cat === 'insumos') {
+          compEmp.estoqueInsumos = (compEmp.estoqueInsumos || 0) + qtdTransacionar;
+        } else {
+          compEmp.estoqueProduto = (compEmp.estoqueProduto || 0) + qtdTransacionar;
+        }
+
+        bid.quantidadeRestante -= qtdTransacionar;
+        ask.quantidadeRestante -= qtdTransacionar;
+
+        estado.transacoesB2B.unshift({
+          turno: estado.turno,
+          comprador: compEmp.nome,
+          vendedor: vendEmp.nome,
+          categoria: cat,
+          quantidade: qtdTransacionar,
+          precoUnitario: precoExecucao,
+          total: financeiroTotal
+        });
+
+        if (bid.quantidadeRestante <= 0) i++;
+        if (ask.quantidadeRestante <= 0) j++;
+      } else {
+        // Sem match
+        break;
+      }
+    }
+  });
+
+  // Limpar ordens 100% liquidadas
+  estado.ordensB2B = estado.ordensB2B.filter(o => o.quantidadeRestante > 0);
+}
+
+// ==========================================================================
+// MOTOR DE TURNO DIÁRIO
+// ==========================================================================
+function processarTurno() {
+  estado.turno++;
+
+  // 1. Eventos Aleatórios
+  if (estado.eventoDuracao > 1) {
+    estado.eventoDuracao--;
+  } else {
+    estado.eventoAtivo = null;
+    estado.eventoDuracao = 0;
+    // Chance de 20% de novo evento
+    if (Math.random() < 0.25) {
+      const ev = estado.eventosPossiveis[Math.floor(Math.random() * estado.eventosPossiveis.length)];
+      estado.eventoAtivo = ev;
+      estado.eventoDuracao = ev.duracao;
+    }
+  }
+
+  // 2. Variação de humor diário (-15% a +15%)
+  for (let c in estado.categorias) {
+    const oscilacao = (Math.random() * 30 - 15);
+    estado.categorias[c].humor = Math.round(oscilacao);
+  }
+
+  // Aplicar efeito do evento
+  if (estado.eventoAtivo && estado.eventoAtivo.efeito) {
+    estado.eventoAtivo.efeito(estado);
+  }
+
+  // 3. Execução do Livro de Ordens B2B
+  processarMatchingB2B();
+
+  // 4. Produção Industrial
+  estado.empresas.filter(e => e.setor === 'industria').forEach(ind => {
+    const meta = ind.metaProducao || 100;
+    const limitacaoInsumos = Math.floor((ind.estoqueInsumos || 0) / 1.0); // 1 insumo = 1 produto
+    const qtdProduzida = Math.min(ind.capacidade, meta, limitacaoInsumos);
+
+    const custoInsumoUnitario = 15;
+    const custoInsumos = qtdProduzida * custoInsumoUnitario;
+
+    if (ind.caixa >= custoInsumos && qtdProduzida > 0) {
+      ind.caixa -= custoInsumos;
+      ind.estoqueInsumos -= qtdProduzida;
+      ind.estoqueProduto += qtdProduzida;
+      ind._custoProducaoTurno = custoInsumos;
+    } else {
+      ind._custoProducaoTurno = 0;
+    }
+  });
+
+  // 5. Alocação de Demanda B2C
+  const vendasB2CPorEmpresa = {};
+  estado.empresas.forEach(e => { vendasB2CPorEmpresa[e.id] = { qtd: 0, receita: 0, share: 0 }; });
+
+  ['alimentos', 'vestuario', 'eletronicos'].forEach(catKey => {
+    const cat = estado.categorias[catKey];
+    const demandaBruta = cat.base * (1 + cat.humor / 100);
+
+    const concorrentes = estado.empresas.filter(
+      e => (e.setor === 'comercio' || e.setor === 'industria') && e.categoria === catKey && e.estoqueProduto > 0
+    );
+
+    if (concorrentes.length > 0) {
+      const scores = concorrentes.map(e => {
+        const fatorPreco = Math.pow(cat.precoRef / e.preco, -cat.elasticidade);
+        const fatorMkt = 1 + (e.marketing / 1000) * 0.5;
+        const fatorQual = 1 + (e.qualidade / 100) * cat.pesoQualidade;
+        const fatorRep = 1 + (e.reputacao / 100) * 0.2;
+        return fatorPreco * fatorMkt * fatorQual * fatorRep;
+      });
+
+      const totalScore = scores.reduce((a, b) => a + b, 0);
+
+      concorrentes.forEach((e, idx) => {
+        const share = totalScore > 0 ? (scores[idx] / totalScore) : (1 / concorrentes.length);
+        const demandaIndividual = Math.floor(demandaBruta * share);
+        const vendidos = Math.min(demandaIndividual, e.estoqueProduto);
+
+        e.estoqueProduto -= vendidos;
+        const rec = vendidos * e.preco;
+
+        vendasB2CPorEmpresa[e.id] = {
+          qtd: vendidos,
+          receita: rec,
+          share: (share * 100)
+        };
+      });
+    }
+  });
+
+  // 6. Fechamento de DRE, Impostos e Caixa
+  const aliquotaImposto = (estado.eventoAtivo && estado.eventoAtivo.impostoAliquota) ? estado.eventoAtivo.impostoAliquota : 0.12;
+
+  estado.empresas.forEach(e => {
+    const v = vendasB2CPorEmpresa[e.id] || { qtd: 0, receita: 0, share: 0 };
+    const receitaBruta = v.receita;
+
+    // Custos Fixos: Aluguel + Salários
+    const aluguel = e.setor === 'industria' ? 2000 : (e.setor === 'comercio' ? 1500 : 1000);
+    const salarios = 500 + (e.capacidade * 2);
+    const custosFixos = aluguel + salarios;
+
+    // Impostos
+    const impostos = receitaBruta * aliquotaImposto;
+
+    // Custos Operacionais Variáveis
+    const custosVariaveis = (e._custoProducaoTurno || 0) + e.marketing;
+
+    // Lucro Líquido
+    const lucroLiquido = receitaBruta - custosFixos - custosVariaveis - impostos;
+
+    e.caixa += (receitaBruta - custosFixos - impostos - e.marketing);
+    e.ultimoFaturamento = receitaBruta;
+    e.ultimoLucro = lucroLiquido;
+
+    // Evolução de Reputação
+    if (lucroLiquido > 0) {
+      e.reputacao = Math.min(100, e.reputacao + 1);
+    } else {
+      e.reputacao = Math.max(0, e.reputacao - 2);
+    }
+
+    // Salvar DRE
+    e.ultimoDRE = {
+      turno: estado.turno,
+      receitaBruta,
+      unidadesVendidas: v.qtd,
+      marketShare: v.share.toFixed(1),
+      custosFixos,
+      custosVariaveis,
+      impostos,
+      lucroLiquido
+    };
+  });
+
+  atualizarInterface();
+}
+
+// ==========================================================================
+// RENDERIZAÇÃO DA INTERFACE
+// ==========================================================================
+function atualizarInterface() {
+  // Label do turno
+  document.getElementById('lblTurno').textContent = `Turno ${estado.turno} (Mês ${estado.turno})`;
+
+  // Banner do evento
+  const banner = document.getElementById('bannerEvento');
+  if (estado.eventoAtivo) {
+    banner.style.display = 'flex';
+    document.getElementById('eventoTitulo').textContent = `🚨 Evento Macroeconômico: ${estado.eventoAtivo.nome}`;
+    document.getElementById('eventoDesc').textContent = estado.eventoAtivo.desc;
+    document.getElementById('eventoDuracao').textContent = `${estado.eventoDuracao} turno(s) restante(s)`;
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Atualização dos limites setoriais
+  ['industria', 'comercio', 'servico'].forEach(setor => {
+    const lim = estado.limitesSetor[setor];
+    const pct = Math.min(100, Math.round((lim.ocupadas / lim.vagasMax) * 100));
+    const prefixo = setor.substring(0, 3).charAt(0).toUpperCase() + setor.substring(1, 3);
+    const lbl = document.getElementById(`lbl${prefixo}Ocupacao`);
+    const bar = document.getElementById(`bar${prefixo}`);
+    if (lbl && bar) {
+      lbl.textContent = `${lim.ocupadas} / ${lim.vagasMax} vagas (${pct}%)`;
+      bar.style.width = `${pct}%`;
+    }
+  });
+
+  // Atualização das Empresas
+  const lista = document.getElementById('listaEmpresas');
+  lista.innerHTML = '';
+
+  const selectB2B = document.getElementById('b2bEmpresaId');
+  selectB2B.innerHTML = '<option value="">-- Selecione uma Empresa --</option>';
+
+  if (estado.empresas.length === 0) {
+    lista.innerHTML = `
+      <div class="card" style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); padding:32px;">
+        Nenhuma empresa fundada ainda. Crie uma nova empresa para iniciar a simulação!
+      </div>
+    `;
+  }
+
+  estado.empresas.forEach(e => {
+    selectB2B.innerHTML += `<option value="${e.id}">${e.nome} (${e.setor.toUpperCase()} - Caixa: R$ ${e.caixa.toFixed(0)})</option>`;
+
+    let dreHtml = '<div style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;">Aguardando primeiro fechamento de turno...</div>';
+    if (e.ultimoDRE) {
+      const d = e.ultimoDRE;
+      const isLucro = d.lucroLiquido >= 0;
+      dreHtml = `
+        <div class="report-box">
+          <div style="font-weight:600; color:#cbd5e1; margin-bottom:4px;">📊 DRE - Turno ${d.turno}</div>
+          <div class="stat-row"><span>Receita Líquida:</span><span class="val-highlight">R$ ${d.receitaBruta.toFixed(2)}</span></div>
+          <div class="stat-row"><span>Vendas / Share:</span><span>${d.unidadesVendidas} un (${d.marketShare}%)</span></div>
+          <div class="stat-row"><span>Custos Fixos:</span><span>R$ ${d.custosFixos.toFixed(2)}</span></div>
+          <div class="stat-row"><span>Impostos (12%):</span><span>R$ ${d.impostos.toFixed(2)}</span></div>
+          <div class="stat-row"><span>Lucro Líquido:</span><span class="${isLucro ? 'val-positive' : 'val-negative'}">R$ ${d.lucroLiquido.toFixed(2)}</span></div>
+        </div>
+      `;
+    }
+
+    const cardClass = e.ultimoDRE ? (e.ultimoDRE.lucroLiquido >= 0 ? 'has-profit' : 'has-danger') : '';
+
+    lista.innerHTML += `
+      <div class="company-card ${cardClass}">
+        <div class="company-title">
+          <strong style="font-size:1.05rem;">${e.nome}</strong>
+          <span class="tag tag-${e.setor}">${e.setor}</span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--text-muted);">
+          Categoria: <strong style="color:#e2e8f0;">${e.categoria}</strong>
+        </div>
+
+        <div class="stat-row">
+          <span>Saldo em Caixa:</span>
+          <span class="${e.caixa >= 0 ? 'val-positive' : 'val-negative'}">R$ ${e.caixa.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        </div>
+        <div class="stat-row">
+          <span>Estoque de Venda:</span>
+          <span class="val-highlight">${e.estoqueProduto} unidades</span>
+        </div>
+        ${e.setor === 'industria' ? `
+        <div class="stat-row">
+          <span>Estoque de Insumos:</span>
+          <span>${e.estoqueInsumos} unidades</span>
+        </div>` : ''}
+        <div class="stat-row">
+          <span>Preço de Venda:</span>
+          <span>R$ ${e.preco.toFixed(2)}</span>
+        </div>
+        <div class="stat-row">
+          <span>Investimento Marketing:</span>
+          <span>R$ ${e.marketing.toFixed(2)}</span>
+        </div>
+        <div class="stat-row">
+          <span>Reputação / Qualidade:</span>
+          <span>⭐ ${e.reputacao}/100 | 🛡️ ${e.qualidade}/100</span>
+        </div>
+
+        ${dreHtml}
+
+        <button class="btn btn-outline" style="width:100%; margin-top:8px; font-size:0.85rem;" onclick="abrirModalConfig('${e.id}')">
+          ⚙️ Ajustar Preço e Diretrizes
+        </button>
+      </div>
+    `;
+  });
+
+  // Livro B2B
+  const tbodyOrdens = document.getElementById('tabelaOrdensB2B');
+  tbodyOrdens.innerHTML = '';
+  if (estado.ordensB2B.length === 0) {
+    tbodyOrdens.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Nenhuma ordem aberta no livro de ofertas.</td></tr>';
+  } else {
+    estado.ordensB2B.forEach(o => {
+      const isCompra = o.tipo === 'compra';
+      tbodyOrdens.innerHTML += `
+        <tr>
+          <td><span style="font-weight:700; color:${isCompra ? 'var(--success)' : 'var(--warning)'};">${isCompra ? 'COMPRA' : 'VENDA'}</span></td>
+          <td>${o.empresaNome}</td>
+          <td>${o.categoria}</td>
+          <td>${o.quantidadeRestante} / ${o.quantidade}</td>
+          <td>R$ ${o.precoLimite.toFixed(2)}</td>
+          <td>
+            <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="cancelarOrdemB2B('${o.id}')">Cancelar</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  // Transações B2B
+  const tbodyTrans = document.getElementById('tabelaTransacoesB2B');
+  if (estado.transacoesB2B.length > 0) {
+    tbodyTrans.innerHTML = '';
+    estado.transacoesB2B.slice(0, 10).forEach(t => {
+      tbodyTrans.innerHTML += `
+        <tr>
+          <td>T-${t.turno}</td>
+          <td>${t.comprador}</td>
+          <td>${t.vendedor}</td>
+          <td>${t.categoria}</td>
+          <td>${t.quantidade}</td>
+          <td>R$ ${t.precoUnitario.toFixed(2)}</td>
+          <td class="val-positive">R$ ${t.total.toFixed(2)}</td>
+        </tr>
+      `;
+    });
+  }
+
+  // Tabela Macroeconômica
+  const tbodyCat = document.getElementById('tabelaCategorias');
+  tbodyCat.innerHTML = '';
+  for (let c in estado.categorias) {
+    const item = estado.categorias[c];
+    const humorColor = item.humor >= 0 ? 'var(--success)' : 'var(--danger)';
+    tbodyCat.innerHTML += `
+      <tr>
+        <td><strong>${item.nome}</strong></td>
+        <td>${item.base.toLocaleString()} un.</td>
+        <td>R$ ${item.precoRef.toFixed(2)}</td>
+        <td>${item.elasticidade}</td>
+        <td><span style="color:${humorColor}; font-weight:600;">${item.humor >= 0 ? '+' : ''}${item.humor}%</span></td>
+      </tr>
+    `;
+  }
+
+  // Ranking
+  const tbodyRank = document.getElementById('tabelaRanking');
+  tbodyRank.innerHTML = '';
+  const ranking = [...estado.empresas].sort((a, b) => (b.caixa + b.estoqueProduto * b.preco) - (a.caixa + a.estoqueProduto * a.preco));
+  ranking.forEach((e, idx) => {
+    tbodyRank.innerHTML += `
+      <tr>
+        <td>#${idx + 1}</td>
+        <td><strong>${e.nome}</strong></td>
+        <td><span class="tag tag-${e.setor}">${e.setor}</span></td>
+        <td class="${e.caixa >= 0 ? 'val-positive' : 'val-negative'}">R$ ${e.caixa.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        <td>${e.estoqueProduto} un.</td>
+        <td>⭐ ${e.reputacao}</td>
+        <td>R$ ${e.ultimoFaturamento.toFixed(2)}</td>
+        <td class="${e.ultimoLucro >= 0 ? 'val-positive' : 'val-negative'}">R$ ${e.ultimoLucro.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+}
+
+// Inicialização com dados de demonstração
+window.addEventListener('DOMContentLoaded', () => {
+  // Criar 3 empresas de exemplo para demonstrar a dinâmica
+  estado.empresas.push({
+    id: 'emp_demo1',
+    nome: 'AgroSul Indústria',
+    setor: 'industria',
+    categoria: 'alimentos',
+    caixa: 15000,
+    reputacao: 55,
+    qualidade: 60,
+    preco: 38,
+    marketing: 200,
+    capacidade: 300,
+    estoqueProduto: 200,
+    estoqueInsumos: 250,
+    metaProducao: 150,
+    ultimoFaturamento: 0,
+    ultimoLucro: 0,
+    ultimoDRE: null
+  });
+  estado.limitesSetor.industria.ocupadas++;
+
+  estado.empresas.push({
+    id: 'emp_demo2',
+    nome: 'Hipermercado Cidade',
+    setor: 'comercio',
+    categoria: 'alimentos',
+    caixa: 12000,
+    reputacao: 50,
+    qualidade: 50,
+    preco: 49,
+    marketing: 400,
+    capacidade: 200,
+    estoqueProduto: 180,
+    estoqueInsumos: 0,
+    metaProducao: 0,
+    ultimoFaturamento: 0,
+    ultimoLucro: 0,
+    ultimoDRE: null
+  });
+  estado.limitesSetor.comercio.ocupadas++;
+
+  // Ordem inicial de teste B2B
+  estado.ordensB2B.push({
+    id: 'ord_demo1',
+    empresaId: 'emp_demo2',
+    empresaNome: 'Hipermercado Cidade',
+    tipo: 'compra',
+    categoria: 'alimentos',
+    quantidade: 100,
+    quantidadeRestante: 100,
+    precoLimite: 42
+  });
+
+  estado.ordensB2B.push({
+    id: 'ord_demo2',
+    empresaId: 'emp_demo1',
+    empresaNome: 'AgroSul Indústria',
+    tipo: 'venda',
+    categoria: 'alimentos',
+    quantidade: 100,
+    quantidadeRestante: 100,
+    precoLimite: 38
+  });
+
+  atualizarInterface();
+});
+</script>
+</body>
+</html>
